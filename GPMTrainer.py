@@ -48,7 +48,7 @@ antwort = st.text_area("Deine Antwort:")
 
 # 📦 Vektorindex laden
 try:
-storage_context = StorageContext.from_defaults(
+    storage_context = StorageContext.from_defaults(
     persist_dir="index_storage"
 )
 
