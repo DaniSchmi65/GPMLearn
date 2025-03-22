@@ -103,3 +103,4 @@ with col2:
         st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
         st.session_state.antwort = ""
         st.session_state.geprüft = False
+        
