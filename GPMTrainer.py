@@ -57,7 +57,7 @@ if st.button("Antwort prüfen"):
         st.session_state.geprüft = True
 
         query = f"""
-Du bist ein strenger, aber hilfsbereiter Lerncoach.
+Du bist ein Experte für IPMA Zertifizierung und prüfst die Antwort auf eine Frage.
 
 Frage: {st.session_state.aktuelle_frage}
 Antwort des Nutzers: {st.session_state.antwort}
