@@ -48,13 +48,12 @@ st.title("🧠 GPT-Lerntrainer")
 st.subheader("Beantworte die folgende Frage:")
 st.markdown(f"**Frage:** {st.session_state.aktuelle_frage}")
 
-# ✍️ Texteingabe
+# ✍️ Eingabe durch Benutzer
 st.text_area("Deine Antwort:", key="antwort")
 
 # ✅ Antwort prüfen
 if st.button("Antwort prüfen"):
     with st.spinner("🔍 Antwort wird geprüft..."):
-
         st.session_state.geprüft = True
 
         query = f"""
@@ -72,7 +71,7 @@ Deine Aufgabe:
         result = engine.query(query)
         response_text = str(result)
 
-        # GPT-Antwort anzeigen
+        # 💬 GPT-Antwort anzeigen
         st.markdown("### 💡 GPT Rückmeldung:")
         st.write(response_text)
 
@@ -90,25 +89,19 @@ st.markdown(f"**❌ Falsch beantwortet:** {st.session_state.falsch}")
 
 col1, col2 = st.columns(2)
 
-# 🔁 Zähler zurücksetzen
 with col1:
     if st.button("🔄 Zähler zurücksetzen"):
         st.session_state.richtig = 0
         st.session_state.falsch = 0
         st.success("Zähler zurückgesetzt.")
 
-# ➡️ Neue Frage
 with col2:
     if st.button("➡️ Nächste Frage anzeigen"):
         neue_frage = random.choice(fragen_df["Frage"].tolist())
         while neue_frage == st.session_state.aktuelle_frage:
             neue_frage = random.choice(fragen_df["Frage"].tolist())
 
-        # Nur sichere Keys setzen, nicht "antwort" direkt!
         st.session_state.aktuelle_frage = neue_frage
         st.session_state.geprüft = False
-
-        # Eingabefeld über Widget-Reset (Trick: force rerun + remove key)
-        st.session_state.pop("antwort", None)  # ❇️ sicher entfernen
-        st.experimental_rerun()                # 🔁 alles neu laden
-
+        st.session_state.pop("antwort", None)  # wichtig, um das Feld zu leeren
+        st.experimental_rerun()                # sofort neu laden
