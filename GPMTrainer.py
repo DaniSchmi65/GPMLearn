@@ -5,7 +5,6 @@ import openai
 import os
 import importlib.metadata
 from llama_index.core import StorageContext, load_index_from_storage
-from llama_index.core.query_engine import RetrieverQueryEngine
 
 # 🧪 Zeige LlamaIndex-Version
 version = importlib.metadata.version("llama-index")
@@ -42,16 +41,14 @@ antwort = st.text_area("Deine Antwort:")
 
 # 📦 Vektorindex laden
 try:
-    storage_context = StorageContext.from_defaults(
-        persist_dir="index_storage"
-    )
+    storage_context = StorageContext.from_defaults(persist_dir="index_storage")
     index = load_index_from_storage(storage_context)
-    engine = index.as_query_engine()
+    engine = index.as_query_engine(similarity_top_k=3)
 except Exception as e:
     st.error(f"❌ Fehler beim Laden des Index: {e}")
     st.stop()
 
-# ✅ Prüfen
+# ✅ Antwort prüfen
 if st.button("Antwort prüfen"):
     with st.spinner("🔍 Antwort wird geprüft..."):
 
@@ -74,7 +71,6 @@ Deine Aufgabe:
         st.markdown("### 💡 GPT Rückmeldung:")
         st.write(response_text)
 
-        # Bewertung: nur wenn korrekt UND kein "nicht korrekt"
         if "korrekt" in response_text.lower() and "nicht korrekt" not in response_text.lower():
             st.success("✅ Deine Antwort scheint korrekt oder weitgehend korrekt zu sein.")
             st.session_state.richtig += 1
@@ -82,15 +78,20 @@ Deine Aufgabe:
             st.warning("❌ Die Antwort war unvollständig oder falsch.")
             st.session_state.falsch += 1
 
-        # Neue Frage zufällig auswählen
-        st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
-
-# 📊 Statistik
+# 📊 Statistik & Steuerung
 st.markdown("---")
 st.markdown(f"**✅ Richtig beantwortet:** {st.session_state.richtig}")
 st.markdown(f"**❌ Falsch beantwortet:** {st.session_state.falsch}")
 
-if st.button("Zähler zurücksetzen"):
-    st.session_state.richtig = 0
-    st.session_state.falsch = 0
-    st.success("🔄 Zähler zurückgesetzt.")
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("🔄 Zähler zurücksetzen"):
+        st.session_state.richtig = 0
+        st.session_state.falsch = 0
+        st.success("Zähler zurückgesetzt.")
+
+with col2:
+    if st.button("➡️ Nächste Frage anzeigen"):
+        st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
+        st.experimental_rerun()

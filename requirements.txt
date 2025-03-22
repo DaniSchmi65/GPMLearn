@@ -1,10 +1,7 @@
-streamlit
-openai>=1.14.0
-pandas
 llama-index==0.12.25
-PyMuPDF
+openai>=1.14.0
 tiktoken
-langchain
-langchain_community
-setuptools
+PyMuPDF
+pandas
+streamlit
 openpyxl
