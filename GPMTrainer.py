@@ -64,8 +64,8 @@ Antwort des Nutzers: {st.session_state.antwort}
 
 Deine Aufgabe:
 1. Bewerte, ob die Antwort korrekt, teilweise korrekt oder falsch ist.
-2. Wie wäre die pe3r
-4. Antworte in freundlichem, motivierendem Ton.
+2. Wie wäre die perfekte Antwort
+3. Antworte in freundlichem, motivierendem Ton.
 """
         result = engine.query(query)
         response_text = str(result)
