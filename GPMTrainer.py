@@ -28,7 +28,7 @@ def lade_fragen(pfad: str) -> pd.DataFrame:
     df.columns = ["Frage"]
     return df
 
-fragen_df = lade_fragen("PrüfungsfragenInternSauber.xlsx")
+fragen_df = lade_fragen("fragen.xlsx")
 
 # 🧠 Session State initialisieren
 if "richtig" not in st.session_state:
