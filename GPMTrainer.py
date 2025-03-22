@@ -1,43 +1,28 @@
 import streamlit as st
-import openai
 import pandas as pd
 import random
-
-from llama_index.core import load_index_from_storage, StorageContext
+import openai
+import os
+import importlib.metadata
+from llama_index.core import StorageContext, load_index_from_storage
 from llama_index.core.query_engine import RetrieverQueryEngine
 
-import json
-import streamlit as st
+# 🧪 Zeige LlamaIndex-Version
+version = importlib.metadata.version("llama-index")
+st.write(f"✅ LlamaIndex Version: {version}")
 
-import os
-st.write("📂 index_storage Inhalt:")
-st.write(os.listdir("index_storage"))
-import streamlit as st
-import llama_index
-st.write(f"✅ LlamaIndex Version: {llama_index.__version__}")
-
+# 📁 Verzeichnisinhalt debuggen (optional)
+if os.path.exists("index_storage"):
+    st.write("📁 Inhalt von index_storage:", os.listdir("index_storage"))
+else:
+    st.error("❌ index_storage-Verzeichnis nicht gefunden!")
 
 # 🔐 OpenAI API-Key laden
 openai.api_key = st.secrets["openai_api_key"]
 
-# 📦 Vektorindex laden
-from llama_index.core import StorageContext, load_index_from_storage
-
-storage_context = StorageContext.from_defaults(
-    persist_dir="index_storage",
-    vector_store_namespace="default",
-    docstore_namespace="default",
-    index_store_namespace="default"
-)
-
-index = load_index_from_storage(storage_context)
-
-# 🔎 Nur Top 3 passende Abschnitte an GPT weitergeben
-query_engine = RetrieverQueryEngine.from_index(index, similarity_top_k=3)
-
 # 📄 Fragen aus Excel laden
 @st.cache_data
-def lade_fragen(pfad: str) -> pd.DataFrame:
+def lade_fragen(pfad):
     df = pd.read_excel(pfad)
     df.columns = ["Frage"]
     return df
@@ -50,68 +35,57 @@ if "richtig" not in st.session_state:
 if "falsch" not in st.session_state:
     st.session_state.falsch = 0
 if "aktuelle_frage" not in st.session_state:
-    st.session_state.aktuelle_frage = ""
-if "user_antwort" not in st.session_state:
-    st.session_state.user_antwort = ""
+    st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
 
-# 🎲 Neue zufällige Frage
-if st.button("🎲 Neue Frage"):
-    st.session_state.aktuelle_frage = fragen_df.sample(1).iloc[0, 0]
-    st.session_state.user_antwort = ""
+st.title("🧠 GPT-Lerntrainer")
+st.subheader("Beantworte die folgende Frage:")
 
-# 📋 Anzeige der aktuellen Frage
-st.title("📚 GPT Lerntrainer")
-st.markdown("**Frage:**")
-st.markdown(st.session_state.aktuelle_frage)
+# ❓ Frage anzeigen
+st.markdown(f"**Frage:** {st.session_state.aktuelle_frage}")
 
-antwort = st.text_area("✍️ Deine Antwort", value=st.session_state.user_antwort, height=150)
+# ✍️ Eingabe
+antwort = st.text_area("Deine Antwort:")
 
-# ✅ Antwort prüfen per GPT
-if st.button("✅ Antwort prüfen"):
-    st.session_state.user_antwort = antwort
-    frage = st.session_state.aktuelle_frage
+# 📦 Vektorindex laden
+try:
+    storage_context = StorageContext.from_defaults(
+        persist_dir="index_storage",
+        vector_store_namespace="default",
+        docstore_namespace="default",
+        index_store_namespace="default"
+    )
+    index = load_index_from_storage(storage_context)
+    engine = RetrieverQueryEngine.from_index(index)
+except Exception as e:
+    st.error(f"❌ Fehler beim Laden des Index: {e}")
+    st.stop()
 
-    with st.spinner("GPT denkt nach..."):
-        try:
-            # Hole Kontext aus PDF-Wissensdatenbank
-            context = query_engine.query(frage).response
+# ✅ Prüfen
+if st.button("Antwort prüfen"):
+    with st.spinner("🔍 Antwort wird geprüft..."):
+        query = f"Bewerte die folgende Antwort auf die Frage:\n\nFrage: {st.session_state.aktuelle_frage}\nAntwort: {antwort}\n\nGib an, ob die Antwort korrekt ist. Wenn nicht, erkläre warum und gib Hinweise, was fehlt oder verbessert werden kann."
+        result = engine.query(query)
+        response_text = str(result)
 
-            prompt = f"""
-Du bist ein strenger, aber hilfsbereiter Lerncoach. Vergleiche die folgende Nutzerantwort mit dem relevanten Wissen aus den Studienunterlagen.
+        if "korrekt" in response_text.lower():
+            st.success("✅ Deine Antwort scheint korrekt oder weitgehend korrekt zu sein.")
+            st.session_state.richtig += 1
+        else:
+            st.warning("❌ Die Antwort war unvollständig oder falsch.")
+            st.session_state.falsch += 1
 
-Frage: {frage}
-Antwort des Nutzers: {antwort}
-Relevanter Kontext: {context}
+        st.markdown("### 💡 GPT Rückmeldung:")
+        st.write(response_text)
 
-Gib eine präzise Rückmeldung:
-- Ist die Antwort richtig, teilweise richtig oder falsch?
-- Was fehlt oder könnte besser sein?
-- Optional: Formuliere eine Musterantwort.
+        # Neue Frage wählen
+        st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
 
-Antworte bitte strukturiert.
-"""
+# 📊 Statistik
+st.markdown("---")
+st.markdown(f"**✅ Richtig beantwortet:** {st.session_state.richtig}")
+st.markdown(f"**❌ Falsch beantwortet:** {st.session_state.falsch}")
 
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.2,
-            )
-
-            output = response.choices[0].message.content
-            st.markdown("### 🤖 GPT-Feedback:")
-            st.markdown(output)
-
-            # Zähler erhöhen (einfaches Matching)
-            if "richtig" in output.lower():
-                st.session_state.richtig += 1
-            else:
-                st.session_state.falsch += 1
-
-        except Exception as e:
-            st.error(f"Fehler bei der GPT-Anfrage:\n\n{str(e)}")
-
-# 📊 Auswertung
-st.markdown(f"✅ **Richtig**: {st.session_state.richtig} ❌ **Falsch**: {st.session_state.falsch}")
-if st.button("🔄 Zähler zurücksetzen"):
+if st.button("Zähler zurücksetzen"):
     st.session_state.richtig = 0
     st.session_state.falsch = 0
+    st.success("🔄 Zähler zurückgesetzt.")
