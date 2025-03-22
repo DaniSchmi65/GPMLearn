@@ -3,9 +3,9 @@ import openai
 import pandas as pd
 import random
 
-from llama_index import load_index_from_storage
-from llama_index.query_engine import RetrieverQueryEngine
-from llama_index.storage.storage_context import StorageContext
+from llama_index.core import load_index_from_storage
+from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core import StorageContext
 
 import json
 import streamlit as st
