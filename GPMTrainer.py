@@ -29,19 +29,10 @@ if "falsch" not in st.session_state:
     st.session_state.falsch = 0
 if "aktuelle_frage" not in st.session_state:
     st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
-if "antwort" not in st.session_state:
-    st.session_state.antwort = ""
 if "geprüft" not in st.session_state:
     st.session_state.geprüft = False
-
-st.title("🧠 GPT-Lerntrainer")
-st.subheader("Beantworte die folgende Frage:")
-
-# ❓ Frage anzeigen
-st.markdown(f"**Frage:** {st.session_state.aktuelle_frage}")
-
-# ✍️ Eingabe
-antwort = st.text_area("Deine Antwort:", value=st.session_state.antwort)
+if "antwort" not in st.session_state:
+    st.session_state.antwort = ""
 
 # 📦 Vektorindex laden
 try:
@@ -52,11 +43,18 @@ except Exception as e:
     st.error(f"❌ Fehler beim Laden des Index: {e}")
     st.stop()
 
+# 🧠 Aktuelle Frage anzeigen
+st.title("🧠 GPT-Lerntrainer")
+st.subheader("Beantworte die folgende Frage:")
+st.markdown(f"**Frage:** {st.session_state.aktuelle_frage}")
+
+# ✍️ Texteingabe
+antwort = st.text_area("Deine Antwort:", key="antwort")
+
 # ✅ Antwort prüfen
 if st.button("Antwort prüfen"):
     with st.spinner("🔍 Antwort wird geprüft..."):
 
-        st.session_state.antwort = antwort
         st.session_state.geprüft = True
 
         query = f"""
@@ -100,7 +98,10 @@ with col1:
 
 with col2:
     if st.button("➡️ Nächste Frage anzeigen"):
-        st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
+        neue_frage = random.choice(fragen_df["Frage"].tolist())
+        while neue_frage == st.session_state.aktuelle_frage:
+            neue_frage = random.choice(fragen_df["Frage"].tolist())
+        st.session_state.aktuelle_frage = neue_frage
         st.session_state.antwort = ""
         st.session_state.geprüft = False
-        
+        st.experimental_rerun()  # sicherstellen, dass Textfeld sich sofort leert
