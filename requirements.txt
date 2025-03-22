@@ -1,4 +1,9 @@
 streamlit
-openai
+openai==0.28.1
 pandas
-
+llama-index
+PyMuPDF
+tiktoken
+langchain
+langchain_community
+setuptools
