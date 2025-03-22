@@ -104,4 +104,4 @@ with col2:
         st.session_state.aktuelle_frage = neue_frage
         st.session_state.geprüft = False
         st.session_state.pop("antwort", None)  # wichtig, um das Feld zu leeren
-        st.experimental_rerun()                # sofort neu laden
+        st.rerun()                # sofort neu laden
