@@ -103,9 +103,12 @@ with col2:
         neue_frage = random.choice(fragen_df["Frage"].tolist())
         while neue_frage == st.session_state.aktuelle_frage:
             neue_frage = random.choice(fragen_df["Frage"].tolist())
-        st.session_state.update({
-            "aktuelle_frage": neue_frage,
-            "antwort": "",
-            "geprüft": False
-        })
-        st.experimental_rerun()
+
+        # Nur sichere Keys setzen, nicht "antwort" direkt!
+        st.session_state.aktuelle_frage = neue_frage
+        st.session_state.geprüft = False
+
+        # Eingabefeld über Widget-Reset (Trick: force rerun + remove key)
+        st.session_state.pop("antwort", None)  # ❇️ sicher entfernen
+        st.experimental_rerun()                # 🔁 alles neu laden
+
