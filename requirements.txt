@@ -1,7 +1,7 @@
 streamlit
 openai==0.28.1
 pandas
-llama-index
+llama-index==0.12.25
 PyMuPDF
 tiktoken
 langchain
