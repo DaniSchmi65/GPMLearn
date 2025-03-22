@@ -1,5 +1,5 @@
 streamlit
-openai==0.28.1
+openai>=1.14.0
 pandas
 llama-index==0.12.25
 PyMuPDF
