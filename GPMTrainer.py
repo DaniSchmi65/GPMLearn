@@ -39,7 +39,15 @@ st.write(os.listdir("index_storage"))
 openai.api_key = st.secrets["openai_api_key"]
 
 # 📦 Vektorindex laden
-storage_context = StorageContext.from_defaults(persist_dir="index_storage")
+from llama_index.core import StorageContext, load_index_from_storage
+
+storage_context = StorageContext.from_defaults(
+    persist_dir="index_storage",
+    vector_store_namespace="default",
+    docstore_namespace="default",
+    index_store_namespace="default"
+)
+
 index = load_index_from_storage(storage_context)
 
 # 🔎 Nur Top 3 passende Abschnitte an GPT weitergeben
