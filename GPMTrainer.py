@@ -53,7 +53,8 @@ try:
 )
 
     index = load_index_from_storage(storage_context)
-    engine = RetrieverQueryEngine.from_index(index)
+    engine = index.as_query_engine()
+
 except Exception as e:
     st.error(f"❌ Fehler beim Laden des Index: {e}")
     st.stop()
