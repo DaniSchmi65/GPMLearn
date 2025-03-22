@@ -29,6 +29,10 @@ if "falsch" not in st.session_state:
     st.session_state.falsch = 0
 if "aktuelle_frage" not in st.session_state:
     st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
+if "antwort" not in st.session_state:
+    st.session_state.antwort = ""
+if "geprüft" not in st.session_state:
+    st.session_state.geprüft = False
 
 st.title("🧠 GPT-Lerntrainer")
 st.subheader("Beantworte die folgende Frage:")
@@ -37,7 +41,7 @@ st.subheader("Beantworte die folgende Frage:")
 st.markdown(f"**Frage:** {st.session_state.aktuelle_frage}")
 
 # ✍️ Eingabe
-antwort = st.text_area("Deine Antwort:")
+antwort = st.text_area("Deine Antwort:", value=st.session_state.antwort)
 
 # 📦 Vektorindex laden
 try:
@@ -51,6 +55,9 @@ except Exception as e:
 # ✅ Antwort prüfen
 if st.button("Antwort prüfen"):
     with st.spinner("🔍 Antwort wird geprüft..."):
+
+        st.session_state.antwort = antwort
+        st.session_state.geprüft = True
 
         query = f"""
 Du bist ein strenger, aber hilfsbereiter Lerncoach.
@@ -94,4 +101,5 @@ with col1:
 with col2:
     if st.button("➡️ Nächste Frage anzeigen"):
         st.session_state.aktuelle_frage = random.choice(fragen_df["Frage"].tolist())
-        st.experimental_rerun()
+        st.session_state.antwort = ""
+        st.session_state.geprüft = False
