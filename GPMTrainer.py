@@ -64,8 +64,7 @@ Antwort des Nutzers: {st.session_state.antwort}
 
 Deine Aufgabe:
 1. Bewerte, ob die Antwort korrekt, teilweise korrekt oder falsch ist.
-2. Gib konstruktives Feedback zur Antwort – nenne Verbesserungsmöglichkeiten.
-3. Gib eine Beispielantwort, wie sie idealerweise aussehen sollte.
+2. Wie wäre die pe3r
 4. Antworte in freundlichem, motivierendem Ton.
 """
         result = engine.query(query)
