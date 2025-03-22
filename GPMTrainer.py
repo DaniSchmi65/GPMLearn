@@ -13,6 +13,10 @@ import streamlit as st
 import os
 st.write("📂 index_storage Inhalt:")
 st.write(os.listdir("index_storage"))
+import streamlit as st
+import llama_index
+st.write(f"✅ LlamaIndex Version: {llama_index.__version__}")
+
 
 # 🔐 OpenAI API-Key laden
 openai.api_key = st.secrets["openai_api_key"]
