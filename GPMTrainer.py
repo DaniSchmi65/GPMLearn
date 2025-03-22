@@ -48,12 +48,10 @@ antwort = st.text_area("Deine Antwort:")
 
 # 📦 Vektorindex laden
 try:
-    storage_context = StorageContext.from_defaults(
-        persist_dir="index_storage",
-        vector_store_namespace="default",
-        docstore_namespace="default",
-        index_store_namespace="default"
-    )
+storage_context = StorageContext.from_defaults(
+    persist_dir="index_storage"
+)
+
     index = load_index_from_storage(storage_context)
     engine = RetrieverQueryEngine.from_index(index)
 except Exception as e:
