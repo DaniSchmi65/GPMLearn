@@ -49,7 +49,7 @@ st.subheader("Beantworte die folgende Frage:")
 st.markdown(f"**Frage:** {st.session_state.aktuelle_frage}")
 
 # ✍️ Texteingabe
-antwort = st.text_area("Deine Antwort:", key="antwort")
+st.text_area("Deine Antwort:", key="antwort")
 
 # ✅ Antwort prüfen
 if st.button("Antwort prüfen"):
@@ -61,7 +61,7 @@ if st.button("Antwort prüfen"):
 Du bist ein strenger, aber hilfsbereiter Lerncoach.
 
 Frage: {st.session_state.aktuelle_frage}
-Antwort des Nutzers: {antwort}
+Antwort des Nutzers: {st.session_state.antwort}
 
 Deine Aufgabe:
 1. Bewerte, ob die Antwort korrekt, teilweise korrekt oder falsch ist.
@@ -90,18 +90,22 @@ st.markdown(f"**❌ Falsch beantwortet:** {st.session_state.falsch}")
 
 col1, col2 = st.columns(2)
 
+# 🔁 Zähler zurücksetzen
 with col1:
     if st.button("🔄 Zähler zurücksetzen"):
         st.session_state.richtig = 0
         st.session_state.falsch = 0
         st.success("Zähler zurückgesetzt.")
 
+# ➡️ Neue Frage
 with col2:
     if st.button("➡️ Nächste Frage anzeigen"):
         neue_frage = random.choice(fragen_df["Frage"].tolist())
         while neue_frage == st.session_state.aktuelle_frage:
             neue_frage = random.choice(fragen_df["Frage"].tolist())
-        st.session_state.aktuelle_frage = neue_frage
-        st.session_state.antwort = ""
-        st.session_state.geprüft = False
-        st.experimental_rerun()  # sicherstellen, dass Textfeld sich sofort leert
+        st.session_state.update({
+            "aktuelle_frage": neue_frage,
+            "antwort": "",
+            "geprüft": False
+        })
+        st.experimental_rerun()
