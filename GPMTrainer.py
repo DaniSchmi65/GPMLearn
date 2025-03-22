@@ -10,27 +10,6 @@ from llama_index.storage.storage_context import StorageContext
 import json
 import streamlit as st
 
-with open("index_storage/default__vector_store.json", "r") as f:
-    try:
-        data = json.load(f)
-        st.success("✅ Vector Store erfolgreich geladen.")
-    except Exception as e:
-        st.error(f"❌ Fehler beim Einlesen der Vector-Store-Datei: {e}")
-
-import os
-import streamlit as st
-
-st.write("📂 Inhalt von index_storage:", os.listdir("index_storage"))
-
-# Vor dem Laden
-try:
-    from llama_index.core import StorageContext, load_index_from_storage
-    storage_context = StorageContext.from_defaults(persist_dir="index_storage")
-    st.success("✅ StorageContext erfolgreich geladen!")
-except Exception as e:
-    st.error(f"❌ Fehler beim Laden des StorageContext: {e}")
-
-
 import os
 st.write("📂 index_storage Inhalt:")
 st.write(os.listdir("index_storage"))
